@@ -17,13 +17,14 @@ Spree::Order.class_eval do
     save!
     updater.run_hooks
 
-    touch :completed_at
+    unless completed?
+      update(state: 'complete')
+      touch :completed_at
+    end
 
     if !confirmation_delivered? && (paid? || authorized?)
       deliver_order_confirmation_email
     end
-
-    update!
 
     consider_risk
   end
