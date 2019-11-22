@@ -213,7 +213,9 @@ module Spree
     def invalidate_previous_orders(spree_order_id)
       Spree::Payment.where(order_id: spree_order_id, state: 'processing').each do |payment|
         begin
-          mollie_order_id = payment.source.payment_id
+          mollie_order_id = payment.source&.payment_id
+          next unless mollie_order_id
+
           order = ::Mollie::Order.get(
             mollie_order_id,
             api_key: get_preference(:api_key)
